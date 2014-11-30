@@ -1,0 +1,162 @@
+---
+title: "R-Meetup"
+author: "Virgile Baudrot"
+date: "Thursday, November 13, 2014"
+output: ioslides_presentation
+runtime: shiny
+---
+
+## Ready for a great presentation?
+
+Présentation avec slidify.
+
+```{r,echo=FALSE}
+inputPanel(
+  selectInput("l_level", label = "Select a word",
+              choices = c("R c'est cool", "R c'est utile","R c'est naze"), selected ="R c'est utile")
+)
+```
+
+And the result is:
+
+```{r,echo=FALSE}
+renderText({
+  if(input$l_level=="R c'est utile"){
+    "Parfois"
+  }
+  else if(input$l_level=="R c'est naze"){
+    "Oh non eh !!!"
+  }
+  else "Yes gros"
+})
+```
+
+
+## Shiny Presentation
+
+This R Markdown presentation is made interactive using Shiny. The viewers of the presentation can change the assumptions underlying what's presented and see the results immediately. 
+
+To learn more, see [Interative Documents](http://rmarkdown.rstudio.com/authoring_shiny.html).
+
+## What I'll talk about:
+
+- What is a loop?
+- Why R studio is so good?
+- Why markdown is very usefull?
+- Example: How to create a package in 5 minutes?
+- How I did this shiny presentation
+
+
+## Slide with Interactive Plot
+
+A data set 
+
+```{r,echo=FALSE}
+inputPanel(
+  sliderInput("nb_people", label = "Nombre de participant",
+              min = 1, max = 30, value = 20, step = 1),
+  sliderInput("nb_lovR", label = "Nombre de LoveR",
+              min = 1, max = 30, value = 10, step = 1),  
+  sliderInput("nb_needR", label = "Nombre de needR",
+              min = 1, max = 30, value = 10, step = 1)   
+)
+```
+
+```{r,echo=FALSE}
+renderText({
+   print(c("Nombre des autres : ",input$nb_people - (input$nb_lovR+input$nb_needR)))
+})
+```
+
+```{r,echo=FALSE,warning=FALSE}
+library(ggplot2)
+```
+
+```{r,echo=FALSE}
+renderPlot({
+  df=data.frame(x=input$nb_needR,y=input$nb_lovR)
+  ggplot(df,aes(x=x,y=y)) +ylim(c(0,30))+xlim(c(0,30))+
+    xlab("Nombre de lovR")+ ylab("Nombre de needR") +
+    geom_point(colour="red",size=3)
+})
+```
+
+
+## 2nd slide with interactive plot
+
+```{r, echo=FALSE}
+inputPanel(
+  selectInput("n_breaks", label = "Number of bins:",
+              choices = c(10, 20, 35, 50), selected = 20),
+  
+  sliderInput("bw_adjust", label = "Bandwidth adjustment:",
+              min = 0.2, max = 2, value = 1, step = 0.2)
+)
+
+renderPlot({
+  hist(faithful$eruptions, probability = TRUE, breaks = as.numeric(input$n_breaks),
+       xlab = "Duration (minutes)", main = "Geyser eruption duration")
+  
+  dens <- density(faithful$eruptions, adjust = input$bw_adjust)
+  lines(dens, col = "blue")
+})
+```
+
+
+## My first loop:
+
+```{r}
+for(i in 1:10){
+  print(i)
+}
+```
+
+## A loop is very long...
+
+Let consider these data:
+
+```{r}
+n<-1e6 # a big number
+g<-rnorm(n) # 1 million randomlly data following normal(0,1)
+h<-rep(NA,n) #a vector of length 1 million
+```
+
+How long is a loop:
+
+```{r}
+# start the clock
+ptm<-proc.time() # register the time
+for(i in 1:n){
+  h[i]<-g[i]+1 # my function
+}
+# stop the clock
+proc.time()-ptm
+```
+
+
+## system.time()
+
+```{r}
+# wrapping the code in a function named loop.code
+loop.code<-function(g){
+  h<-rep(NA,length(g))
+  for(i in 1:n){
+    h[i]<-g[i]+1
+  }
+}
+# time to compute:
+(system.time(loop.code(g)))
+```
+
+
+## R STUDIO
+
+Let see it in live !
+
+## R Markdown
+
+Let see it in live !
+
+## A package in 5 minutes!
+
+

@@ -1,0 +1,167 @@
+---
+title: "ggplot2"
+author: "virgile-baudrot"
+date: "Thursday, October 30, 2014"
+output:
+  html_document:
+    highlight: tango
+    theme: flatly
+---
+
+Beginning
+----
+## A plot laye by layer
+
+size, colour and shape is *aesthetics*. ggplot are like ogre (Shrek), it's made of layers! And so like oignon. Layers are:
+- data and aesthetic,
+- statistical transformed,
+- geometric object,
+- position adjustement
+
+
+First, load the library ggplot2, and see the data diamonds (include in ggplot2). A dataset containing the prices and other attributes of 54000 diamonds.
+
+```{r}
+library(ggplot2)
+head(diamonds)
+````
+
+We can used a random sample of the dataset diamonds:
+```{r}
+set.seed(1410) # make the sample repoducible
+dsmall<-diamonds[sample(nrow(diamonds),100),]
+head(dsmall)
+```
+
+First look at the data:
+
+```{r}
+#a simple plot of all the diamonds
+qplot(carat,price,data=diamonds)
+# another plot of the selection
+qplot(carat,price,data=dsmall)
+```
+
+```{r}
+p <- ggplot(diamonds, aes(carat,price,colour=cut))
+```
+
+In the object *p*, there is no layer. Adding the layer is by: 
+ 
+```{r}
+p<-p+layer(geom="point")
+p
+```
+
+A stat or geom layer is made by the same expression:
+- geom_XXX(...)
+- stat_XXX(...)
+
+example of $qplot()* with a layer:
+```{r}
+# data
+head(msleep)
+# without layer:
+qplot(sleep_rem/sleep_total, awake,data=msleep)
+#and with a layer:
+qplot(sleep_rem/sleep_total, awake,data=msleep) + geom_smooth()
+```
+
+layer with *ggplot()*
+
+```{r}
+# the same with layer:
+p<-ggplot(msleep,aes(sleep_rem/sleep_total,awake)) + geom_point() + geom_smooth()
+p
+# the summary function:
+summary(p)
+```
+
+
+Interest of layers?
+```{r}
+library(scales) # to make transparency
+# this is how you what the curve fit look like:
+bestfit <- geom_smooth(method="lm",se=F,colour=alpha("steelblue",0.5),size=2)
+#and the data you use:
+qplot(sleep_rem,sleep_total,data=msleep)+bestfit
+# another dataset:
+qplot(bodywt,brainwt,data=msleep,log="xy") + bestfit
+```
+
+
+## Aesthetic mapping
+
+
+
+## Transparency
+
+Transparency need the packages *scales* in order to used the function *alpha()*
+
+```{r}
+df<-data.frame(x_norm=rnorm(2000),y_norm=rnorm(2000))
+library(ggplot2)
+norm <- ggplot(df, aes(x=x_norm,y=y_norm))
+norm+geom_point()
+norm+geom_point(shape=1)
+norm+geom_point(shape=".")
+### Transparency
+library(scales)
+norm+geom_point(colour=alpha("black",1/3))
+norm+geom_point(colour=alpha("black",1/10))
+```
+
+## Annotating a plot
+
+we'll use data economics already load in the package *ggplot2*
+
+```{r}
+library(ggplot2)
+# data economics are already in the package
+head(economics)
+unemp<-qplot(date,unemploy,data=economics, geom="line")
+unemp
+# adding legent on qplot
+unemp<-qplot(date,unemploy,data=economics, geom="line",
+             xlab="",ylab="No. unemployed(1000s)")
+unemp
+```
+
+### geom_vline()
+
+```{r}
+# data presidential  are already in the package
+presid <- presidential[-(1:3),]
+presid
+# range: return vector with minimum and maximum
+yrng <- range(economics$unemploy)
+yrng
+xrng<-range(economics$date)
+xrng
+unemp+geom_vline(aes(xintercept=as.numeric(start)),data=presid)
+
+```
+
+
+### geom_vline()
+
+```{r}
+unemp + 
+  geom_rect(aes(NULL, NULL, 
+                xmin = start, xmax = end, 
+                fill = party), 
+            alpha = 0.2, 
+            ymin = yrng[1], ymax = yrng[2], 
+            data = presid) + 
+  scale_fill_manual(values = c("Republican"="red", 
+                               "Democratic"="blue"))
+```
+
+### last_plot()
+
+```{r}
+last_plot() + 
+  geom_text(aes(x = start, y = yrng[1], label = name), 
+            data = presid, size = 3, hjust = 0, vjust = 0)
+```
+

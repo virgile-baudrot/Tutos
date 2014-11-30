@@ -1,0 +1,144 @@
+---
+title: "Loops"
+author: "virgile-baudrot"
+date: "Monday, November 10, 2014"
+output: html_document
+---
+
+Here is a lecture for loops.
+
+## My first loop **for**
+
+
+#### What is a loop ?
+
+
+```{r}
+for(i in 1:10){
+  print(i)
+}
+```
+
+#### A loop is very long in R
+
+Let consider these data:
+
+```{r}
+n<-1e6 # a big number
+g<-rnorm(n)
+h<-rep(NA,n)
+```
+
+
+#### Timing code
+
+A loop adding 1 to every element of g:
+
+```{r}
+# start the clock
+ptm<-proc.time()
+for(i in 1:n){
+  h[i]<-g[i]+1
+}
+# stop the clock
+loop.time<-proc.time()-ptm
+```
+
+The *user time* is the CPU time charged for the execution of user instructions of the calling process. The *system time* is the CPU time charged for execution by the system on behalf of the calling process.
+
+- user (utilisateur): the execution of the code,
+- system (système): time relate to CPU
+- elapsed (écoulé) sum of user and system if all lines are run together
+
+To avoid start and stop code, we can use `system.time` function:
+
+```{r}
+# wrapping the code in a function named loop.code
+loop.code<-function(g){
+  h<-rep(NA,length(g))
+  for(i in 1:n){
+    h[i]<-g[i]+1
+  }
+}
+# time to compute:
+system.time(loop.code(g))
+```
+
+Without a loop (in a vector approach) the process is faster:
+
+```{r}
+vector.code<-function(g){
+    g+1
+}
+system.time(vector.code(g))
+```
+
+This is just super fast!
+
+
+## apply, sapply, lapply, tapply,...
+
+
+apply: lets take a big matrix with values of a normal law with mean 3 and variance 9 (sd=3)
+
+```{r}
+m<-matrix(rnorm(1e7,3,3),nrow=1e2) # so we have 1e4 column: try ncol(m)
+print(object.size(m),units="GB")
+```
+
+And we want the mean of each column:
+
+```{r}
+#with a loop
+mean.col<-function(m){
+  mean.col.vec<-rep(NA,ncol(m))
+  for(i in 1:ncol(m)){
+    mean.col.vec[i]<-mean(m[,i])
+  }
+  return(mean.col.vec)
+}
+system.time(mean.col(m))
+# with apply
+system.time(apply(m,2,mean))
+```
+
+and with a bigger matrix:
+
+```{r}
+m.big<-matrix(rnorm(1e8,3,3),nrow=1e3) # so we have 1e4 column: try ncol(m)
+print(object.size(m.big),units="GB")
+```
+
+And we want the mean of each column:
+
+```{r}
+#with a loop
+system.time(mean.col(m.big))
+# with apply
+system.time(apply(m.big,2,mean))
+
+```
+
+The function `apply()` is not always faster...
+
+There is a function a lot faster:
+
+```{r}
+system.time(colMeans(m.big))
+rm(list=ls()) # remove other object
+```
+
+
+
+## My first if
+
+If you have more than `if`.
+
+
+```
+
+## Cleaning the 
+
+```{r}
+rm(list=ls()) # enlever ce qui est dans l'espace de travail
+```

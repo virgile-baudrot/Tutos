@@ -1,0 +1,176 @@
+---
+title: "dplyr"
+author: "virgile-baudrot"
+date: "Wednesday, October 29, 2014"
+output: html_document
+---
+
+**dplyr** is made of 5+1 functions:
+- filter: keep rows matching criteria
+- select: pick columns by name
+- arrange: reorder rows
+- mutate: add new variables
+- summarise: reduce variables to values
+and the final function:
+- group_by: used to group data according to criteria
+
+This document is used to present the package dyplr. 
+
+```{r}
+#load packages
+library('dplyr')
+library('hflights')
+
+# explore data
+data(hflights)
+head(hflights)
+```
+
+'tbl_df() is a function creating a local data frame
+
+```{r}
+flights<-tbl_df(hflights)
+flights
+```
+
+print() may be used to print a head with a greater number of row of the local data frame object
+
+```{r}
+print(flights,n=20)
+```
+
+
+## filter : choose specific lines
+
+Native function to view flight of the first day of january
+
+```{r}
+flights[flights$Month==1 & flights$DayofMonth==1,]
+````
+
+with dplyr, the functoion filter() is more intuitive (easy to understand)
+
+```{r}
+filter(flights, Month==1, DayofMonth==1)
+#
+filter(flights, UniqueCarrier=="AA" | UniqueCarrier=="UA")
+filter(flights, UniqueCarrier %in% c("AA","UA"))
+```
+
+
+## select : pick columns
+
+The classical R way to do it:
+
+```{r}
+flights[,c("DepTime","ArrTime","FlightNum")]
+```
+
+and the dplyr way:
+
+```{r}
+select(flights, DepTime,ArrTime,FlightNum)
+```
+
+## Chaining
+
+Chaining is probably the more inovative function in the package.
+See the nesting method:
+
+```{r}
+# select UniqueCarrier and DepDelay columns and fliter for delays over 60 minutes:
+
+filter(select(flights,UniqueCarrier, DepDelay),DepDelay>60)
+```
+
+the chaining way increases readability:
+
+```{r}
+flights %>% # select the object
+  select(UniqueCarrier, DepDelay) %>% #apply the first function
+  filter(DepDelay >60) # and the second function
+```
+
+Create two vectore to calculate euclidian distance detween them:
+
+```{r}
+x1<-1:5
+x2<-2:6
+# the chaining method:
+
+(x1-x2)^2 %>% sum() %>% sqrt()
+```
+
+
+## arrange : reorder row
+
+select UniqueCarrier and DepDelay columns and sort by DepDelay
+
+```{r}
+flights %>%
+  select(UniqueCarrier, DepDelay) %>%
+  arrange(desc(DepDelay))
+```
+
+## mutate: add new variables
+
+creation of a new variable speed (in mph)
+
+```{r}
+flights %>%
+  select(Distance, AirTime) %>%
+  mutate(Speed = Distance/AirTime*60)
+```
+
+## summarise: reduce variables to values
+
+create a table grouped by Dest, and then summarise each groupe by taking the mean of ArrDalay
+
+```{r}
+flights %>%
+  group_by(Dest) %>%
+  summarise(avg_delay =mean(ArrDelay,na.rm=TRUE))
+```
+
+
+## summarise_each: apply the same function to multiple columns at once
+
+for each carrier, calculate the percentage of flights cancelled or diverted
+
+```{r}
+flights %>%
+  group_by(UniqueCarrier) %>%
+  summarise_each(funs(mean),Cancelled, Diverted)
+```
+
+for each carrier, calculate the minimum and maximum arrival and departure delays
+
+```{r}
+flights %>%
+  group_by(UniqueCarrier) %>%
+  summarise_each(funs(min(.,an.rm=TRUE),max(.,na.rm=TRUE)),matches("Delay"))
+```
+
+## Example of %>% the pipeplines operator:
+
+Another set of data
+
+```{r}
+
+```
+
+
+```{r}
+hourly_delay <- flights %>%
+  filter(!is.na(dep_delay)) %>%
+  group_by(date,hour) %>%
+  summarise(
+    delay=mean(dep_delay),
+    n=n()
+    ) %>%
+  filter(n>10)
+
+```
+
+
+
