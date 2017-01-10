@@ -8,3 +8,6 @@ Here is a set of script to use **R**.
 * package [googleVis](https://github.com/virgile-baudrot/Tutos/blob/master/googleVis.Rmd)
 
 Other tutos are for the manipulation of a [loop](https://github.com/virgile-baudrot/Tutos/blob/master/loops.Rmd). A loop is one of the first thing we learn in programming.
+
+
+* [Tableau-Shiny_Download.R](Tableau-Shiny_Download.R) : upload un tableau dans une page `shiny`.
